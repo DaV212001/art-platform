@@ -3,52 +3,164 @@
 import { useState, useRef, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, UploadCloud, FileImage, X, AlertCircle } from 'lucide-react';
+import {
+  Loader2, UploadCloud, FileImage, X, AlertCircle, Coins, CheckCircle2, ImageIcon,
+} from 'lucide-react';
 import apiClient from '@/lib/api/client';
+
+const CREDIT_COST = 3;
+
+function UploadZone({
+  file,
+  previewUrl,
+  onFileChange,
+  onRemove,
+  fileInputRef,
+}: {
+  file: File | null;
+  previewUrl: string | null;
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemove: () => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const dropped = e.dataTransfer.files[0];
+    if (dropped) {
+      const syntheticEvent = { target: { files: [dropped] } } as any;
+      onFileChange(syntheticEvent);
+    }
+  };
+
+  if (file && previewUrl) {
+    return (
+      <div
+        className="relative rounded-2xl overflow-hidden"
+        style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface-2)' }}
+      >
+        <img
+          src={previewUrl}
+          alt="Preview"
+          className="w-full h-auto max-h-[480px] object-contain"
+        />
+        <div
+          className="absolute top-0 inset-x-0 p-3 flex justify-between items-center"
+          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)' }}
+        >
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', color: 'var(--color-foreground)' }}
+          >
+            <FileImage className="w-3.5 h-3.5" />
+            {file.name}
+          </div>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', color: '#fff' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(242,84,125,0.7)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.5)')}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div
+          className="absolute bottom-0 inset-x-0 p-3 flex items-center gap-2 text-xs"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)', color: '#5ddba3' }}
+        >
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          Image ready to submit
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={() => fileInputRef.current?.click()}
+      onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={handleDrop}
+      className="flex flex-col items-center justify-center rounded-2xl p-14 text-center cursor-pointer transition-all"
+      style={{
+        border: `2px dashed ${dragOver ? 'var(--color-brand)' : 'var(--color-border)'}`,
+        background: dragOver ? 'var(--color-brand-dim)' : 'var(--color-surface-2)',
+      }}
+    >
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all"
+        style={{
+          background: dragOver ? 'var(--color-brand-dim)' : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${dragOver ? 'var(--color-brand-border)' : 'var(--color-border)'}`,
+        }}
+      >
+        <UploadCloud
+          className="w-7 h-7 transition-colors"
+          style={{ color: dragOver ? '#b39fff' : 'var(--color-muted)' }}
+        />
+      </div>
+      <p className="font-semibold mb-1">
+        {dragOver ? 'Drop to upload' : 'Click to upload or drag & drop'}
+      </p>
+      <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
+        JPG, PNG or WEBP · Max 10 MB
+      </p>
+    </div>
+  );
+}
 
 function SubmissionForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const exerciseId = searchParams.get('exerciseId');
-  
+
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<'idle' | 'uploading' | 'submitting' | 'done'>('idle');
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const fileInputRef = useRef<HTMLInputElement>(null!);
+
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<{ notes: string }>();
 
   if (!exerciseId) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
-        <h1 className="text-2xl font-bold text-white mb-4">No exercise selected</h1>
-        <p className="text-slate-400 mb-8">Please select an exercise from the library first.</p>
-        <button onClick={() => router.push('/exercises')} className="text-violet-400 hover:text-violet-300">
-          Go to Library
+      <div className="container mx-auto px-4 py-32 text-center">
+        <div
+          className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6"
+          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}
+        >
+          <ImageIcon className="w-9 h-9" style={{ color: 'var(--color-subtle)' }} />
+        </div>
+        <h1 className="text-2xl font-bold mb-3">No exercise selected</h1>
+        <p className="mb-8" style={{ color: 'var(--color-muted)' }}>
+          Please select an exercise from the library first.
+        </p>
+        <button onClick={() => router.push('/exercises')} className="btn btn-primary">
+          Browse exercises
         </button>
       </div>
     );
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selected = e.target.files[0];
-      if (selected.size > 10 * 1024 * 1024) {
-        setError('File size must be less than 10MB');
-        return;
-      }
-      setFile(selected);
-      setPreviewUrl(URL.createObjectURL(selected));
-      setError(null);
+    const selected = e.target?.files?.[0];
+    if (!selected) return;
+    if (selected.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10 MB');
+      return;
     }
+    setFile(selected);
+    setPreviewUrl(URL.createObjectURL(selected));
+    setError(null);
   };
 
   const uploadToCloudinary = async (fileToUpload: File): Promise<string> => {
-    // Get signature from our backend
     const { data: sigData } = await apiClient.post('/submissions/upload-url');
-    
-    // Upload directly to Cloudinary
     const formData = new FormData();
     formData.append('file', fileToUpload);
     formData.append('api_key', sigData.apikey);
@@ -57,129 +169,162 @@ function SubmissionForm() {
     formData.append('folder', sigData.folder);
 
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    if (!cloudName) throw new Error("Cloudinary configuration missing");
+    if (!cloudName) throw new Error('Cloudinary configuration missing');
 
     const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
       body: formData,
     });
-    
-    if (!uploadRes.ok) {
-      throw new Error('Failed to upload image to storage');
-    }
-    
+
+    if (!uploadRes.ok) throw new Error('Failed to upload image');
     const result = await uploadRes.json();
     return result.public_id;
   };
 
   const onSubmit = async (data: { notes: string }) => {
-    if (!file) {
-      setError('Please select an image to submit');
-      return;
-    }
-    
+    if (!file) { setError('Please select an image to submit'); return; }
+
     try {
       setIsUploading(true);
       setError(null);
-      
+      setUploadProgress('uploading');
+
       const publicId = await uploadToCloudinary(file);
-      
+      setUploadProgress('submitting');
+
       const res = await apiClient.post('/submissions', {
         exerciseId,
         imagePublicId: publicId,
         notes: data.notes,
       });
-      
-      // Navigate to the chain view (we'll implement this later)
+
+      setUploadProgress('done');
       router.push(`/submissions/chain/${res.data.chainId}`);
-      
     } catch (err: any) {
-      setError(err?.message || 'Failed to submit practice. Please try again.');
+      setError(err?.message || 'Failed to submit. Please try again.');
+      setUploadProgress('idle');
     } finally {
       setIsUploading(false);
     }
   };
 
+  const isBusy = isUploading || isSubmitting;
+
+  const progressLabel = {
+    idle:       'Submit Practice',
+    uploading:  'Uploading image...',
+    submitting: 'Saving submission...',
+    done:       'Done!',
+  }[uploadProgress];
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-2xl">
-      <h1 className="text-3xl font-extrabold text-white mb-2">Submit Practice</h1>
-      <p className="text-slate-400 mb-8">Upload your artwork for this exercise. Make sure the lighting is good and the image is clear.</p>
-      
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 glass-card p-8">
+
+      {/* Header */}
+      <div className="mb-8">
+        <p className="section-label mb-2">New Submission</p>
+        <h1
+          className="text-3xl font-extrabold mb-2"
+          style={{ fontFamily: 'var(--font-plus-jakarta, var(--font-inter))' }}
+        >
+          Submit Practice
+        </h1>
+        <p style={{ color: 'var(--color-muted)' }}>
+          Upload your artwork to receive structured peer feedback.
+        </p>
+      </div>
+
+      {/* Credit cost notice */}
+      <div
+        className="flex items-center gap-3 p-4 rounded-xl mb-8"
+        style={{
+          background: 'var(--color-credit-dim)',
+          border: '1px solid var(--color-credit-border)',
+        }}
+      >
+        <Coins className="w-5 h-5 flex-shrink-0" style={{ color: '#ffc662' }} />
+        <div>
+          <p className="text-sm font-semibold" style={{ color: '#ffc662' }}>
+            This costs {CREDIT_COST} credits
+          </p>
+          <p className="text-xs" style={{ color: 'var(--color-muted)' }}>
+            Credits are deducted when your review is requested. Earn them back by reviewing others.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Error */}
         {error && (
-          <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-rose-200">{error}</p>
+          <div
+            className="p-4 rounded-xl flex items-start gap-3"
+            style={{ background: 'var(--color-danger-dim)', border: '1px solid rgba(242,84,125,0.25)' }}
+          >
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ff82a1' }} />
+            <p className="text-sm" style={{ color: '#ff82a1' }}>{error}</p>
           </div>
         )}
 
-        {/* File Upload Area */}
+        {/* Upload zone */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Artwork Image</label>
-          
-          {!file ? (
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-white/20 hover:border-violet-500/50 rounded-xl p-12 text-center cursor-pointer bg-slate-900/50 transition-colors flex flex-col items-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-violet-500/10 flex items-center justify-center mb-4">
-                <UploadCloud className="w-8 h-8 text-violet-400" />
-              </div>
-              <p className="text-white font-medium mb-1">Click to upload or drag and drop</p>
-              <p className="text-sm text-slate-400">JPG, PNG or WEBP (max. 10MB)</p>
-            </div>
-          ) : (
-            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-slate-900">
-              <img src={previewUrl!} alt="Preview" className="w-full h-auto max-h-[500px] object-contain" />
-              <div className="absolute top-0 inset-x-0 p-4 bg-gradient-to-b from-black/60 to-transparent flex justify-between items-center">
-                <div className="flex items-center text-white bg-black/40 px-3 py-1.5 rounded-md backdrop-blur-sm text-sm">
-                  <FileImage className="w-4 h-4 mr-2" />
-                  {file.name}
-                </div>
-                <button 
-                  type="button" 
-                  onClick={() => { setFile(null); setPreviewUrl(null); }}
-                  className="w-8 h-8 rounded-full bg-black/40 hover:bg-rose-500/80 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            accept="image/jpeg, image/png, image/webp" 
-            className="hidden" 
+          <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-foreground)' }}>
+            Artwork Image <span style={{ color: 'var(--color-danger)' }}>*</span>
+          </label>
+          <UploadZone
+            file={file}
+            previewUrl={previewUrl}
+            onFileChange={handleFileChange}
+            onRemove={() => { setFile(null); setPreviewUrl(null); }}
+            fileInputRef={fileInputRef}
+          />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
           />
         </div>
 
+        {/* Artist notes */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Artist Notes (Optional)
+          <label className="block text-sm font-semibold mb-1" style={{ color: 'var(--color-foreground)' }}>
+            Artist Notes
+            <span className="ml-2 font-normal text-xs" style={{ color: 'var(--color-muted)' }}>optional</span>
           </label>
-          <p className="text-xs text-slate-400 mb-2">Let reviewers know what specific areas you struggled with or want feedback on.</p>
+          <p className="text-xs mb-2" style={{ color: 'var(--color-subtle)' }}>
+            Tell reviewers what you struggled with or where you want specific feedback.
+          </p>
           <textarea
             {...register('notes')}
             rows={4}
-            className="w-full bg-slate-900 border border-white/10 rounded-lg p-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all resize-none"
-            placeholder="I had trouble capturing the correct proportion of the cranium..."
+            className="input resize-none"
+            style={{ borderRadius: 'var(--radius-lg)' }}
+            placeholder="e.g. I had trouble getting the foreshortening right on the left arm..."
           />
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
-          disabled={isUploading || isSubmitting || !file}
-          className="w-full flex justify-center items-center py-4 px-4 rounded-xl shadow-lg text-white bg-violet-600 hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-lg font-medium"
+          disabled={isBusy || !file}
+          className="btn btn-primary btn-lg w-full"
         >
-          {isUploading || isSubmitting ? (
+          {isBusy ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              {isUploading ? 'Uploading Image...' : 'Submitting...'}
+              <Loader2 className="w-4.5 h-4.5 animate-spin" />
+              {progressLabel}
             </>
           ) : (
-            'Submit Practice'
+            <>
+              {progressLabel}
+              <span
+                className="ml-auto flex items-center gap-1 text-sm opacity-70"
+              >
+                <Coins className="w-3.5 h-3.5" />
+                −{CREDIT_COST}
+              </span>
+            </>
           )}
         </button>
       </form>
@@ -189,11 +334,13 @@ function SubmissionForm() {
 
 export default function NewSubmissionPage() {
   return (
-    <Suspense fallback={
-      <div className="flex justify-center py-32">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-32">
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-brand)' }} />
+        </div>
+      }
+    >
       <SubmissionForm />
     </Suspense>
   );
