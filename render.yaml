@@ -4,8 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install && npm run build:api
-    preDeployCommand: cd apps/api && npm run migration:run
-    startCommand: cd apps/api && npm run start:prod
+    startCommand: cd apps/api && npm run migration:run && npm run start:prod
     envVars:
       - key: DATABASE_URL
         fromDatabase:
