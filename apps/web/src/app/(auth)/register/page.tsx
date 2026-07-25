@@ -46,17 +46,19 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8 glass-card p-10 text-center">
-          <div className="mx-auto w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
-            <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,92,252,0.1) 0%, transparent 70%)' }} />
+        
+        <div className="relative w-full max-w-md space-y-8 card p-10 text-center" style={{ background: 'var(--color-surface-1)' }}>
+          <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6" style={{ background: 'var(--color-success-dim)' }}>
+            <CheckCircle2 className="w-8 h-8" style={{ color: '#34c98b' }} />
           </div>
-          <h2 className="text-3xl font-extrabold text-white">Check your email</h2>
-          <p className="text-slate-400">
+          <h2 className="text-3xl font-extrabold" style={{ fontFamily: 'var(--font-plus-jakarta, var(--font-inter))' }}>Check your email</h2>
+          <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
             We've sent a verification link to your email address. Please verify your account to continue.
           </p>
           <div className="pt-6">
-            <Link href="/login" className="text-violet-400 hover:text-violet-300 font-medium">
+            <Link href="/login" className="btn btn-primary w-full">
               Return to login
             </Link>
           </div>
@@ -66,80 +68,83 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 glass-card p-10">
-        <div>
-          <h2 className="text-center text-3xl font-extrabold tracking-tight text-white">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(124,92,252,0.1) 0%, transparent 70%)' }} />
+      
+      <div className="relative w-full max-w-md">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-extrabold" style={{ fontFamily: 'var(--font-plus-jakarta, var(--font-inter))' }}>
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-slate-400">
+          <p className="mt-1.5 text-sm" style={{ color: 'var(--color-muted)' }}>
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-violet-400 hover:text-violet-300">
+            <Link href="/login" className="font-semibold transition-colors hover:text-violet-400">
               Sign in
             </Link>
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="card p-8 space-y-6" style={{ background: 'var(--color-surface-1)' }} onSubmit={handleSubmit(onSubmit)}>
           {error && (
-            <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-rose-200">{error}</p>
+            <div className="p-4 rounded-xl flex items-start gap-3 animate-scale-in" style={{ background: 'var(--color-danger-dim)', border: '1px solid rgba(242,84,125,0.25)' }}>
+              <AlertCircle className="w-4.5 h-4.5 flex-shrink-0 mt-0.5" style={{ color: '#ff82a1' }} />
+              <p className="text-sm" style={{ color: '#ff82a1' }}>{error}</p>
             </div>
           )}
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Username</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--color-foreground)' }}>Username</label>
               <input
                 {...register('username')}
                 type="text"
-                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                className="input"
                 placeholder="art_student"
               />
-              {errors.username && <p className="mt-1 text-sm text-rose-500">{errors.username.message}</p>}
+              {errors.username && <p className="mt-1 text-xs" style={{ color: '#ff82a1' }}>{errors.username.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Email address</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--color-foreground)' }}>Email address</label>
               <input
                 {...register('email')}
                 type="email"
-                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                className="input"
                 placeholder="you@example.com"
               />
-              {errors.email && <p className="mt-1 text-sm text-rose-500">{errors.email.message}</p>}
+              {errors.email && <p className="mt-1 text-xs" style={{ color: '#ff82a1' }}>{errors.email.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--color-foreground)' }}>Password</label>
               <input
                 {...register('password')}
                 type="password"
-                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                className="input"
                 placeholder="••••••••"
               />
-              {errors.password && <p className="mt-1 text-sm text-rose-500">{errors.password.message}</p>}
+              {errors.password && <p className="mt-1 text-xs" style={{ color: '#ff82a1' }}>{errors.password.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Confirm Password</label>
+              <label className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--color-foreground)' }}>Confirm Password</label>
               <input
                 {...register('confirmPassword')}
                 type="password"
-                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                className="input"
                 placeholder="••••••••"
               />
-              {errors.confirmPassword && <p className="mt-1 text-sm text-rose-500">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && <p className="mt-1 text-xs" style={{ color: '#ff82a1' }}>{errors.confirmPassword.message}</p>}
             </div>
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="btn btn-primary btn-lg w-full"
+            style={{ marginTop: '1.5rem' }}
           >
-            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Create Account'}
+            {isSubmitting ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : 'Create Account'}
           </button>
         </form>
       </div>

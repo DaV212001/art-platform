@@ -77,21 +77,21 @@ export default function WriteReviewPage() {
   if (success) {
     return (
       <div className="container mx-auto px-4 py-24 max-w-2xl text-center">
-        <div className="glass-card p-12 relative overflow-hidden">
+        <div className="card p-12 relative overflow-hidden animate-scale-in" style={{ background: 'var(--color-surface-1)' }}>
           <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
           <div className="mx-auto w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mb-8">
             <CheckCircle2 className="w-10 h-10 text-emerald-500" />
           </div>
-          <h2 className="text-4xl font-extrabold text-white mb-4">Review Submitted!</h2>
-          <p className="text-lg text-slate-300 mb-8">
+          <h2 className="text-4xl font-extrabold mb-4" style={{ color: 'var(--color-foreground)' }}>Review Submitted!</h2>
+          <p className="text-lg mb-8" style={{ color: 'var(--color-muted)' }}>
             Thank you for providing structured, helpful feedback. You've earned{' '}
             <strong className="text-amber-400">{earnedCredits} credits</strong>.
           </p>
           <div className="flex justify-center gap-4">
-            <button onClick={() => router.push('/review/queue')} className="px-6 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-medium transition-colors">
+            <button onClick={() => router.push('/review/queue')} className="btn btn-primary">
               Review Another
             </button>
-            <button onClick={() => router.push('/')} className="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium border border-white/10 transition-colors">
+            <button onClick={() => router.push('/')} className="btn btn-ghost">
               Go Home
             </button>
           </div>
@@ -102,7 +102,7 @@ export default function WriteReviewPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl">
-      <Link href="/review/queue" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white transition-colors mb-8">
+      <Link href="/review/queue" className="inline-flex items-center text-sm font-medium transition-colors mb-8" style={{ color: 'var(--color-muted)' }}>
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Queue
       </Link>
@@ -110,34 +110,34 @@ export default function WriteReviewPage() {
       <div className="grid lg:grid-cols-2 gap-10">
         {/* Left Column: Reference Image & Details */}
         <div className="space-y-6">
-          <div className="glass-card overflow-hidden">
-             <div className="p-4 bg-slate-900 border-b border-white/5 flex items-center justify-between">
+          <div className="card overflow-hidden" style={{ background: 'var(--color-surface-1)' }}>
+             <div className="p-4 border-b flex items-center justify-between" style={{ background: 'var(--color-surface-2)', borderColor: 'var(--color-border)' }}>
                 <div>
-                  <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Artist</span>
-                  <div className="text-white font-medium">{submission.user?.username}</div>
+                  <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--color-muted)' }}>Artist</span>
+                  <div className="font-medium" style={{ color: 'var(--color-foreground)' }}>{submission.user?.username}</div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Exercise</span>
-                  <div className="text-white font-medium">{submission.exercise?.title}</div>
+                  <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'var(--color-muted)' }}>Exercise</span>
+                  <div className="font-medium" style={{ color: 'var(--color-foreground)' }}>{submission.exercise?.title}</div>
                 </div>
              </div>
              <img src={submission.imageUrl} alt="Artwork for review" className="w-full h-auto" />
              
              {submission.notes && (
-               <div className="p-6 bg-slate-900 border-t border-white/5">
-                 <h4 className="text-sm font-semibold text-slate-300 mb-2">Artist Notes</h4>
-                 <p className="text-slate-400 text-sm italic border-l-2 border-violet-500 pl-4">{submission.notes}</p>
+               <div className="p-6 border-t" style={{ background: 'var(--color-surface-2)', borderColor: 'var(--color-border)' }}>
+                 <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--color-foreground)' }}>Artist Notes</h4>
+                 <p className="text-sm italic border-l-2 pl-4" style={{ color: 'var(--color-muted)', borderColor: 'var(--color-brand)' }}>{submission.notes}</p>
                </div>
              )}
           </div>
           
-          <div className="glass-card p-6 border-indigo-500/20 bg-indigo-500/5">
-             <h4 className="font-bold text-white mb-2">Exercise Goals</h4>
-             <p className="text-sm text-slate-300 mb-4">{submission.exercise?.description}</p>
+          <div className="card p-6" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-brand-border)' }}>
+             <h4 className="font-bold mb-2" style={{ color: 'var(--color-foreground)' }}>Exercise Goals</h4>
+             <p className="text-sm mb-4" style={{ color: 'var(--color-muted)' }}>{submission.exercise?.description}</p>
              <ul className="space-y-2">
                {submission.exercise?.specificGoals?.map((g: any, i: number) => (
-                 <li key={i} className="text-sm text-slate-400 flex items-start">
-                    <span className="mr-2 text-indigo-400">•</span>
+                 <li key={i} className="text-sm flex items-start" style={{ color: 'var(--color-subtle)' }}>
+                    <span className="mr-2" style={{ color: 'var(--color-brand)' }}>•</span>
                     {g.goal}
                  </li>
                ))}
@@ -147,14 +147,14 @@ export default function WriteReviewPage() {
 
         {/* Right Column: Structured Review Form */}
         <div>
-          <h1 className="text-3xl font-extrabold text-white mb-2">Write Review</h1>
-          <p className="text-slate-400 mb-8">Provide structured, objective feedback based on the exercise goals. All fields require at least 100 characters to ensure depth.</p>
+          <h1 className="text-3xl font-extrabold mb-2" style={{ color: 'var(--color-foreground)', fontFamily: 'var(--font-plus-jakarta, var(--font-inter))' }}>Write Review</h1>
+          <p className="mb-8" style={{ color: 'var(--color-muted)' }}>Provide structured, objective feedback based on the exercise goals. All fields require at least 100 characters to ensure depth.</p>
           
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 glass-card p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 card p-8" style={{ background: 'var(--color-surface-1)' }}>
             {serverError && (
-              <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-start space-x-3 mb-6">
-                <AlertCircle className="w-5 h-5 text-rose-500 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-rose-200">{serverError}</p>
+              <div className="p-4 rounded-xl flex items-start gap-3 mb-6 animate-scale-in" style={{ background: 'var(--color-danger-dim)', border: '1px solid rgba(242,84,125,0.25)' }}>
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#ff82a1' }} />
+                <p className="text-sm" style={{ color: '#ff82a1' }}>{serverError}</p>
               </div>
             )}
 
@@ -196,23 +196,23 @@ export default function WriteReviewPage() {
               />
               
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>
                   Additional Notes (Optional)
                 </label>
                 <textarea
                   {...register('additionalNotes')}
                   rows={3}
-                  className="w-full bg-slate-900 border border-white/10 rounded-lg p-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all resize-none text-sm"
+                  className="input w-full resize-none text-sm"
                   placeholder="Any other encouraging words or resources..."
                 />
               </div>
             </div>
 
-            <div className="pt-6 border-t border-white/10">
+            <div className="pt-6 border-t" style={{ borderColor: 'var(--color-border)' }}>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex justify-center items-center py-4 px-4 rounded-xl shadow-lg text-white bg-violet-600 hover:bg-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-violet-500 disabled:opacity-50 transition-all font-bold text-lg"
+                className="btn btn-primary btn-lg w-full"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -231,14 +231,13 @@ export default function WriteReviewPage() {
   );
 }
 
-// Helper component for the structured fields
 function ReviewField({ label, name, register, error, charCount, placeholder }: any) {
   const isSufficient = charCount >= 100;
   
   return (
     <div className="relative">
       <div className="flex justify-between items-end mb-2">
-        <label className="block text-sm font-bold text-white">{label}</label>
+        <label className="block text-sm font-bold" style={{ color: 'var(--color-foreground)' }}>{label}</label>
         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isSufficient ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
           {charCount}/100 chars
         </span>
@@ -246,12 +245,11 @@ function ReviewField({ label, name, register, error, charCount, placeholder }: a
       <textarea
         {...register(name)}
         rows={4}
-        className={`w-full bg-slate-900 border rounded-lg p-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all resize-none text-sm
-          ${error ? 'border-rose-500/50' : isSufficient ? 'border-emerald-500/30' : 'border-white/10'}
-        `}
+        className={`input w-full resize-none text-sm`}
+        style={error ? { borderColor: '#ff82a1' } : isSufficient ? { borderColor: '#34c98b' } : undefined}
         placeholder={placeholder}
       />
-      {error && <p className="mt-1 text-xs text-rose-500">{error}</p>}
+      {error && <p className="mt-1 text-xs" style={{ color: '#ff82a1' }}>{error}</p>}
     </div>
   );
 }

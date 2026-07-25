@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Request,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -25,11 +26,13 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({ short: { limit: 5, ttl: 600000 } }) // 5 reqs per 10 mins
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  @Throttle({ short: { limit: 10, ttl: 300000 } }) // 10 reqs per 5 mins
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -56,6 +59,7 @@ export class AuthController {
     return this.authService.verifyEmail(dto.token);
   }
 
+  @Throttle({ short: { limit: 3, ttl: 900000 } }) // 3 reqs per 15 mins
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: ForgotPasswordDto) {

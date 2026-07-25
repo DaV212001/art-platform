@@ -5,6 +5,7 @@ import apiClient from '@/lib/api/client';
 import Link from 'next/link';
 import { Loader2, MessageSquarePlus, Clock, Coins, Sparkles } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import AuthGuard from '@/components/auth/auth-guard';
 
 function QueueSkeleton() {
   return (
@@ -29,7 +30,8 @@ export default function ReviewQueuePage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl">
+    <AuthGuard>
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
@@ -195,6 +197,7 @@ export default function ReviewQueuePage() {
           </Link>
         </div>
       )}
-    </div>
+      </div>
+    </AuthGuard>
   );
 }

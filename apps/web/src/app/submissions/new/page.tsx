@@ -7,6 +7,7 @@ import {
   Loader2, UploadCloud, FileImage, X, AlertCircle, Coins, CheckCircle2, ImageIcon,
 } from 'lucide-react';
 import apiClient from '@/lib/api/client';
+import AuthGuard from '@/components/auth/auth-guard';
 
 const CREDIT_COST = 3;
 
@@ -117,6 +118,7 @@ function SubmissionForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const exerciseId = searchParams.get('exerciseId');
+  const chainId = searchParams.get('chainId');
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -192,11 +194,19 @@ function SubmissionForm() {
       const publicId = await uploadToCloudinary(file);
       setUploadProgress('submitting');
 
-      const res = await apiClient.post('/submissions', {
-        exerciseId,
-        imagePublicId: publicId,
-        notes: data.notes,
-      });
+      let res;
+      if (chainId) {
+        res = await apiClient.post(`/submissions/chains/${chainId}/revisions`, {
+          imagePublicId: publicId,
+          notes: data.notes,
+        });
+      } else {
+        res = await apiClient.post('/submissions', {
+          exerciseId,
+          imagePublicId: publicId,
+          notes: data.notes,
+        });
+      }
 
       setUploadProgress('done');
       router.push(`/submissions/chain/${res.data.chainId}`);
@@ -222,12 +232,12 @@ function SubmissionForm() {
 
       {/* Header */}
       <div className="mb-8">
-        <p className="section-label mb-2">New Submission</p>
+        <p className="section-label mb-2">{chainId ? 'New Revision' : 'New Submission'}</p>
         <h1
           className="text-3xl font-extrabold mb-2"
           style={{ fontFamily: 'var(--font-plus-jakarta, var(--font-inter))' }}
         >
-          Submit Practice
+          {chainId ? 'Submit Revision' : 'Submit Practice'}
         </h1>
         <p style={{ color: 'var(--color-muted)' }}>
           Upload your artwork to receive structured peer feedback.
@@ -334,14 +344,16 @@ function SubmissionForm() {
 
 export default function NewSubmissionPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-32">
-          <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-brand)' }} />
-        </div>
-      }
-    >
-      <SubmissionForm />
-    </Suspense>
+    <AuthGuard>
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-32">
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--color-brand)' }} />
+          </div>
+        }
+      >
+        <SubmissionForm />
+      </Suspense>
+    </AuthGuard>
   );
 }

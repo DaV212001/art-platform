@@ -152,6 +152,33 @@ export class SubmissionsService {
     return { submissions, total };
   }
 
+  async getForUser(
+    userId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<{ submissions: SubmissionEntity[]; total: number }> {
+    const qb = this.submissionRepo.createQueryBuilder('s')
+      .leftJoinAndSelect('s.exercise', 'ex')
+      .leftJoinAndSelect('ex.skillCategory', 'cat')
+      .where('s.user_id = :userId', { userId })
+      .andWhere('s.deleted_at IS NULL')
+      // Only fetch the latest version per chain for the list view
+      .andWhere(qb => {
+         const subQuery = qb.subQuery()
+           .select('MAX(sub.version_number)')
+           .from(SubmissionEntity, 'sub')
+           .where('sub.chain_id = s.chain_id')
+           .getQuery();
+         return `s.version_number = ${subQuery}`;
+      })
+      .orderBy('s.created_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [submissions, total] = await qb.getManyAndCount();
+    return { submissions, total };
+  }
+
   async getUploadSignature() {
     return this.storageService.generateUploadSignature('submissions');
   }

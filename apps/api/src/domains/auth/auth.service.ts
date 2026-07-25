@@ -9,6 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { UserEntity } from '../users/user.entity';
@@ -81,25 +82,21 @@ export class AuthService {
     });
 
     const refreshToken = uuidv4();
-    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    const refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
     await this.userRepo.update({ id: user.id }, { refreshTokenHash });
 
     return { accessToken, refreshToken, user: this.sanitizeUser(user) };
   }
 
   async refresh(dto: RefreshDto) {
-    // Find user by matching refresh token
-    const users = await this.userRepo.find({ where: { isActive: true } });
-    let found: UserEntity | null = null;
-    for (const u of users) {
-      if (u.refreshTokenHash && (await bcrypt.compare(dto.refreshToken, u.refreshTokenHash))) {
-        found = u;
-        break;
-      }
+    const refreshTokenHash = crypto.createHash('sha256').update(dto.refreshToken).digest('hex');
+    const user = await this.userRepo.findOne({ where: { refreshTokenHash, isActive: true } });
+    
+    if (!user) {
+      throw new UnauthorizedException({ code: 'INVALID_REFRESH_TOKEN', message: 'Invalid or expired refresh token' });
     }
-    if (!found) throw new UnauthorizedException({ code: 'INVALID_REFRESH_TOKEN', message: 'Invalid or expired refresh token' });
 
-    return this.login(found);
+    return this.login(user);
   }
 
   async logout(userId: string) {

@@ -55,6 +55,22 @@ export class SubmissionsController {
     };
   }
 
+  @Get('me')
+  async getMySubmissions(
+    @CurrentUser() user: { id: string },
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ) {
+    const { submissions, total } = await this.submissionsService.getForUser(
+      user.id, +page, +limit,
+    );
+    return {
+      success: true,
+      data: submissions,
+      meta: { page: +page, limit: +limit, total, totalPages: Math.ceil(total / +limit) },
+    };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.submissionsService.findOne(id);

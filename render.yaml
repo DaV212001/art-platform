@@ -4,6 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install && npm run build:api
+    preDeployCommand: cd apps/api && npm run migration:run
     startCommand: cd apps/api && npm run start:prod
     envVars:
       - key: DATABASE_URL
@@ -14,7 +15,20 @@ services:
         value: 3001
       - key: NODE_ENV
         value: production
-      # Add other environment variables (JWT_SECRET, CLOUDINARY, BREVO) in the Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
 
   - type: psql
     name: art-platform-db

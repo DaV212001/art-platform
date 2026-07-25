@@ -37,21 +37,21 @@ export default function ExerciseDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <Link href="/exercises" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white transition-colors mb-8">
+      <Link href="/exercises" className="inline-flex items-center text-sm font-medium transition-colors mb-8" style={{ color: 'var(--color-muted)' }}>
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Library
       </Link>
       
-      <div className="glass-card p-8 md:p-12 mb-8 relative overflow-hidden">
+      <div className="card p-8 md:p-12 mb-8 relative overflow-hidden animate-fade-up" style={{ background: 'var(--color-surface-1)' }}>
         {/* Background glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[100px] -mt-64 -mr-64 pointer-events-none"></div>
         
         <div className="relative z-10">
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="px-3 py-1 rounded-md bg-slate-800 text-sm font-medium text-slate-300">
+            <span className="badge badge-muted">
               {exercise.skillCategory?.name}
             </span>
-            <span className={`px-3 py-1 rounded-md text-sm font-medium uppercase tracking-wider
+            <span className={`badge uppercase tracking-wider
               ${exercise.difficulty === 'beginner' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : ''}
               ${exercise.difficulty === 'intermediate' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : ''}
               ${exercise.difficulty === 'advanced' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : ''}
@@ -59,36 +59,36 @@ export default function ExerciseDetailPage() {
               {exercise.difficulty}
             </span>
             {exercise.estimatedMinutes && (
-              <span className="flex items-center text-slate-400 text-sm font-medium ml-auto">
+              <span className="flex items-center text-sm font-medium ml-auto" style={{ color: 'var(--color-muted)' }}>
                 <Clock className="w-4 h-4 mr-1.5" />
                 {exercise.estimatedMinutes} mins
               </span>
             )}
           </div>
           
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight" style={{ fontFamily: 'var(--font-plus-jakarta, var(--font-inter))' }}>
             {exercise.title}
           </h1>
           
           <div className="prose prose-invert prose-violet max-w-none">
-            <p className="text-lg text-slate-300 leading-relaxed">
+            <p className="text-lg leading-relaxed" style={{ color: 'var(--color-muted)' }}>
               {exercise.description}
             </p>
           </div>
           
           {exercise.specificGoals && exercise.specificGoals.length > 0 && (
             <div className="mt-10">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+              <h3 className="text-xl font-bold mb-4 flex items-center" style={{ color: 'var(--color-foreground)' }}>
                 <Target className="w-5 h-5 mr-2 text-violet-400" />
                 Specific Goals
               </h3>
               <ul className="space-y-3">
                 {exercise.specificGoals.map((goal: any, idx: number) => (
                   <li key={idx} className="flex items-start">
-                    <div className="w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0" style={{ background: 'var(--color-brand-dim)', color: '#b39fff' }}>
                       {idx + 1}
                     </div>
-                    <span className="text-slate-300">{goal.goal}</span>
+                    <span style={{ color: 'var(--color-muted)' }}>{goal.goal}</span>
                   </li>
                 ))}
               </ul>
@@ -98,14 +98,14 @@ export default function ExerciseDetailPage() {
       </div>
       
       {/* Call to action */}
-      <div className="glass-card p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border-violet-500/20">
+      <div className="card p-8 flex flex-col sm:flex-row items-center justify-between gap-6" style={{ background: 'var(--color-surface-2)' }}>
         <div>
-          <h3 className="text-xl font-bold text-white mb-2">Ready to practice?</h3>
-          <p className="text-slate-400">Complete the exercise and upload your work for structured peer review.</p>
+          <h3 className="text-xl font-bold mb-2">Ready to practice?</h3>
+          <p style={{ color: 'var(--color-muted)' }}>Complete the exercise and upload your work for structured peer review.</p>
         </div>
         <button 
           onClick={() => router.push(`/submissions/new?exerciseId=${exercise.id}`)}
-          className="w-full sm:w-auto flex items-center justify-center px-8 py-4 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium transition-all shadow-lg shadow-violet-600/20"
+          className="btn btn-primary btn-lg w-full sm:w-auto"
         >
           <UploadCloud className="w-5 h-5 mr-2" />
           Submit Practice
