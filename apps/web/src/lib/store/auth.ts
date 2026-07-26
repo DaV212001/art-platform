@@ -7,6 +7,8 @@ interface AuthState {
   refreshToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   login: (accessToken: string, refreshToken: string, user: User) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
@@ -19,29 +21,33 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       user: null,
       isAuthenticated: false,
-      
+      _hasHydrated: false,
+
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
+
       login: (accessToken, refreshToken, user) => set({
         accessToken,
         refreshToken,
         user,
         isAuthenticated: true
       }),
-      
+
       logout: () => set({
         accessToken: null,
         refreshToken: null,
         user: null,
         isAuthenticated: false
       }),
-      
+
       updateUser: (updates) => set((state) => ({
         user: state.user ? { ...state.user, ...updates } : null
       }))
     }),
     {
       name: 'auth-storage',
-      // We persist tokens in local storage for the MVP.
-      // In production, HTTP-only cookies are more secure.
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
