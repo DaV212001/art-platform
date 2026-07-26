@@ -1,11 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/auth';
 import { Loader2 } from 'lucide-react';
 
-export default function AuthGuard({ children }: { children: React.ReactNode }) {
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+    <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+  </div>
+);
+
+function AuthGuardInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -25,12 +31,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, _hasHydrated, pathname, searchParams, router]);
 
   if (!isReady || !_hasHydrated) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return <>{children}</>;
+}
+
+export default function AuthGuard({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <AuthGuardInner>{children}</AuthGuardInner>
+    </Suspense>
+  );
 }
