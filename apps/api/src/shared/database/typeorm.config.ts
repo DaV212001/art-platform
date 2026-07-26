@@ -8,6 +8,7 @@ config({ path: resolve(__dirname, '../../../../.env') });
 export default new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgresql://artplatform:artplatform_secret@localhost:5432/artplatform',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   entities: ['src/**/*.entity{.ts,.js}'],
   migrations: ['src/shared/database/migrations/*{.ts,.js}'],
 });

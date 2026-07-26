@@ -31,6 +31,7 @@ import { EmailModule } from './shared/email/email.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL || 'postgresql://artplatform:artplatform_secret@localhost:5432/artplatform',
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       autoLoadEntities: true,
       synchronize: false, // Using migrations instead
       logging: process.env.NODE_ENV === 'development',
