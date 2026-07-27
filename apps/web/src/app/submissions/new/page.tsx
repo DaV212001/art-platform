@@ -165,12 +165,12 @@ function SubmissionForm() {
     const { data: sigData } = await apiClient.post('/submissions/upload-url');
     const formData = new FormData();
     formData.append('file', fileToUpload);
-    formData.append('api_key', sigData.apikey);
+    formData.append('api_key', sigData.apiKey);
     formData.append('timestamp', sigData.timestamp);
     formData.append('signature', sigData.signature);
     formData.append('folder', sigData.folder);
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const cloudName = sigData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     if (!cloudName) throw new Error('Cloudinary configuration missing');
 
     const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {

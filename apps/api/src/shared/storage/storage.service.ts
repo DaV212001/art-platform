@@ -13,11 +13,13 @@ export interface UploadResult {
 @Injectable()
 export class StorageService {
   constructor() {
-    cloudinary.v2.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    });
+    if (!process.env.CLOUDINARY_URL) {
+      cloudinary.v2.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+    }
   }
 
   /**
@@ -33,15 +35,16 @@ export class StorageService {
   } {
     const timestamp = Math.round(Date.now() / 1000);
     const params = { timestamp, folder, transformation: 'c_limit,w_2000,h_2000' };
+    const config = cloudinary.v2.config();
     const signature = cloudinary.v2.utils.api_sign_request(
       params,
-      process.env.CLOUDINARY_API_SECRET || '',
+      config.api_secret || '',
     );
     return {
       signature,
       timestamp,
-      cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
-      apiKey: process.env.CLOUDINARY_API_KEY || '',
+      cloudName: config.cloud_name || '',
+      apiKey: config.api_key || '',
       folder,
     };
   }
