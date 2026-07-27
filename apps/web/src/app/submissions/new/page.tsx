@@ -162,24 +162,43 @@ function SubmissionForm() {
   };
 
   const uploadToCloudinary = async (fileToUpload: File): Promise<string> => {
+    console.log('[Upload] Requesting signature from backend...');
     const { data: sigData } = await apiClient.post('/submissions/upload-url');
+    console.log('[Upload] Signature received:', sigData);
+
     const formData = new FormData();
     formData.append('file', fileToUpload);
     formData.append('api_key', sigData.apiKey);
     formData.append('timestamp', sigData.timestamp);
     formData.append('signature', sigData.signature);
     formData.append('folder', sigData.folder);
+    if (sigData.transformation) {
+      console.log('[Upload] Appending transformation:', sigData.transformation);
+      formData.append('transformation', sigData.transformation);
+    }
 
     const cloudName = sigData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    if (!cloudName) throw new Error('Cloudinary configuration missing');
+    if (!cloudName) {
+      console.error('[Upload] Cloudinary cloudName missing');
+      throw new Error('Cloudinary configuration missing');
+    }
+
+    console.log(`[Upload] Sending request to Cloudinary (cloudName: ${cloudName})...`);
+    console.log('[Upload] FormData entries:', Array.from(formData.entries()).map(([k, v]) => `${k}: ${v instanceof File ? v.name : v}`));
 
     const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
       body: formData,
     });
 
-    if (!uploadRes.ok) throw new Error('Failed to upload image');
+    if (!uploadRes.ok) {
+      const errorText = await uploadRes.text();
+      console.error(`[Upload] Cloudinary rejected upload with status ${uploadRes.status}:`, errorText);
+      throw new Error(`Failed to upload image: ${errorText}`);
+    }
+
     const result = await uploadRes.json();
+    console.log('[Upload] Cloudinary upload successful. Public ID:', result.public_id);
     return result.public_id;
   };
 
